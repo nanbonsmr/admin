@@ -23,7 +23,8 @@
     "noImplicitAny": false,
     "noImplicitReturns": false,
     "noImplicitThis": false,
-    "noUncheckedIndexedAccess": false
+    "noUncheckedIndexedAccess": false,
+    "suppressImplicitAnyIndexErrors": true
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist", "**/*.test.*", "**/*.spec.*"]

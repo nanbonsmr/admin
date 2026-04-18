@@ -8,5 +8,5 @@ if (!convexUrl) {
 
 export const convex = new ConvexReactClient(convexUrl);
 
-// Re-export the API from the admin convex setup
-export { api } from "../convex/_generated/api";
+// Re-export the API from the main project's convex setup
+export { api } from "../../convex/_generated/api";

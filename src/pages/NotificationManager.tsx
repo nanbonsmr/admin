@@ -33,7 +33,7 @@ import {
 } from '@mui/icons-material';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../convexClient';
-import { Id } from '../../convex/_generated/dataModel';
+import { Id } from '../../../convex/_generated/dataModel';
 
 interface NotificationForm {
   title: string;
