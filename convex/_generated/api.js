@@ -10,6 +10,32 @@
 
 import { anyApi, componentsGeneric } from "convex/server";
 
+// Create a safe API proxy that handles missing functions
+const createSafeApi = () => {
+  return new Proxy(anyApi, {
+    get(target, prop) {
+      if (prop in target) {
+        return target[prop];
+      }
+      
+      // Return a proxy for missing modules
+      return new Proxy({}, {
+        get(subTarget, subProp) {
+          if (subProp in subTarget) {
+            return subTarget[subProp];
+          }
+          
+          // Return a function that handles the missing function gracefully
+          return (...args) => {
+            console.warn(`Convex function ${String(prop)}.${String(subProp)} not available`);
+            return Promise.resolve(null);
+          };
+        }
+      });
+    }
+  });
+};
+
 /**
  * A utility for referencing Convex functions in your app's API.
  *
@@ -18,6 +44,6 @@ import { anyApi, componentsGeneric } from "convex/server";
  * const myFunctionReference = api.myModule.myFunction;
  * ```
  */
-export const api = anyApi;
+export const api = createSafeApi();
 export const internal = anyApi;
 export const components = componentsGeneric();
