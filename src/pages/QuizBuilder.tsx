@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useMutation, useQuery } from 'convex/react';
-import { api } from '../../../convex/_generated/api';
+import { api } from '../convexClient';
 import { Plus, Trash2, Save, ArrowLeft } from 'lucide-react';
 
 interface Question {

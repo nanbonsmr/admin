@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery } from 'convex/react';
-import { api } from '../../../convex/_generated/api';
+import { api } from '../convexClient';
 import { 
   BarChart3, TrendingUp, Users, Award, Clock, 
   Target, AlertCircle, CheckCircle, XCircle 

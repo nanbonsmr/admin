@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useMutation } from 'convex/react';
-import { api } from "../../../convex/_generated/api";
+import { api } from "../convexClient";
 import FileUpload from '../components/FileUpload';
 import { 
   Plus, Save, X, Upload, Video, FileText, Image as ImageIcon, 

@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useMutation, useQuery } from 'convex/react';
-import { api } from '../../../convex/_generated/api';
+import { api } from '../convexClient';
 import { Upload, File, Video, Image, X, Check } from 'lucide-react';
 
 interface FileUploadProps {

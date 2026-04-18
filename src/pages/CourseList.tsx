@@ -1,5 +1,5 @@
 import { useQuery, useMutation } from "convex/react";
-import { api } from "../../../convex/_generated/api";
+import { api } from "../convexClient";
 import { Link } from "react-router-dom";
 import { Plus, MoreVertical, Edit2, Trash2, ExternalLink, HelpCircle } from "lucide-react";
 

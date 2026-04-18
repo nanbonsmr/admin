@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation } from 'convex/react';
-import { api } from '../../../convex/_generated/api';
+import { api } from '../convexClient';
 import { Calendar, Clock, Users, Video, Plus, Edit, Trash2 } from 'lucide-react';
 
 const LiveSessions = () => {
