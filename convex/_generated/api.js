@@ -10,30 +10,117 @@
 
 import { anyApi, componentsGeneric } from "convex/server";
 
-// Create a safe API proxy that handles missing functions
-const createSafeApi = () => {
-  return new Proxy(anyApi, {
-    get(target, prop) {
-      if (prop in target) {
-        return target[prop];
-      }
-      
-      // Return a proxy for missing modules
-      return new Proxy({}, {
-        get(subTarget, subProp) {
-          if (subProp in subTarget) {
-            return subTarget[subProp];
-          }
-          
-          // Return a function that handles the missing function gracefully
-          return (...args) => {
-            console.warn(`Convex function ${String(prop)}.${String(subProp)} not available`);
-            return Promise.resolve(null);
-          };
-        }
-      });
-    }
-  });
+// Create a minimal API structure for the admin panel
+const adminApi = {
+  ...anyApi,
+  fileStorage: {
+    getDownloadUrl: null, // Will be handled gracefully by the component
+    generateUploadUrl: null,
+    storeFileMetadata: null,
+  },
+  users: {
+    getAllUsers: null,
+    getAdminUser: null,
+    adminLogin: null,
+    updateAccountStatus: null,
+    updateUserRole: null,
+    ensureAdminUser: null,
+    testDatabaseConnection: null,
+  },
+  courses: {
+    list: null,
+    getById: null,
+    create: null,
+    update: null,
+    remove: null,
+  },
+  payments: {
+    getPendingPaymentReceipts: null,
+    getAllPaymentReceipts: null,
+    getPaymentStatistics: null,
+    approvePaymentReceipt: null,
+    rejectPaymentReceipt: null,
+  },
+  notifications: {
+    getAllNotifications: null,
+    createNotification: null,
+    updateNotification: null,
+    deleteNotification: null,
+  },
+  analytics: {
+    getEnrollmentStats: null,
+    getPopularContent: null,
+    getTimeSpentAnalytics: null,
+    getLessonCompletionRates: null,
+    getProgressHeatmap: null,
+  },
+  featuredCourses: {
+    getAllFeaturedCoursesAdmin: null,
+    addFeaturedCourse: null,
+    updateFeaturedCourse: null,
+    removeFeaturedCourse: null,
+    reorderFeaturedCourses: null,
+  },
+  settings: {
+    getAllSettings: null,
+    getSystemInfo: null,
+    updateGeneralSettings: null,
+    updateSecuritySettings: null,
+    updateNotificationSettings: null,
+    updateSystemSettings: null,
+  },
+  units: {
+    create: null,
+    createUnit: null,
+    updateUnit: null,
+    removeUnit: null,
+    createSubunit: null,
+    updateSubunit: null,
+    listUnits: null,
+    listSubunits: null,
+  },
+  lessons: {
+    create: null,
+    createLesson: null,
+    updateLesson: null,
+    removeLesson: null,
+    listLessons: null,
+  },
+  quizzes: {
+    createQuiz: null,
+    updateQuiz: null,
+    deleteQuiz: null,
+    getQuiz: null,
+    getQuizzesByCourse: null,
+  },
+  forums: {
+    getTopicsByCourse: null,
+    getPostsByTopic: null,
+    createTopic: null,
+    createPost: null,
+    updateTopic: null,
+    deleteTopic: null,
+  },
+  liveSessions: {
+    getSessionsByCourse: null,
+    getUpcomingSessions: null,
+    createSession: null,
+    updateSession: null,
+    deleteSession: null,
+  },
+  enrollments: {
+    getUserEnrollments: null,
+  },
+  notes: {
+    getUserNotes: null,
+  },
+  offlineDownloads: {
+    getUserDownloads: null,
+  },
+  files: {
+    generateUploadUrl: null,
+    storeFileMetadata: null,
+  },
 };
 
 /**
@@ -44,6 +131,6 @@ const createSafeApi = () => {
  * const myFunctionReference = api.myModule.myFunction;
  * ```
  */
-export const api = createSafeApi();
+export const api = adminApi;
 export const internal = anyApi;
 export const components = componentsGeneric();

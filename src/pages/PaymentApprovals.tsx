@@ -29,11 +29,12 @@ const PaymentApprovals = () => {
   const paymentStats = useQuery(api.payments.getPaymentStatistics);
   const adminUser = useQuery(api.users.getAdminUser);
   
-  // Get image URL when a receipt is selected
-  const receiptImageUrl = useQuery(
-    api.fileStorage.getDownloadUrl, 
-    selectedReceipt && selectedReceipt.receiptImage ? { storageId: selectedReceipt.receiptImage } : 'skip'
-  );
+  // Get image URL when a receipt is selected - temporarily disabled
+  // const receiptImageUrl = useQuery(
+  //   api.fileStorage.getDownloadUrl, 
+  //   selectedReceipt && selectedReceipt.receiptImage ? { storageId: selectedReceipt.receiptImage } : 'skip'
+  // );
+  const receiptImageUrl = null; // Temporarily disabled until Convex functions are properly connected
 
   const approveReceipt = useMutation(api.payments.approvePaymentReceipt);
   const rejectReceipt = useMutation(api.payments.rejectPaymentReceipt);
