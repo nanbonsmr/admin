@@ -17,12 +17,12 @@ import {
   Typography,
   Chip,
   IconButton,
-  Grid,
   Alert,
   Switch,
   FormControlLabel,
   Autocomplete,
 } from '@mui/material';
+import { SimpleGrid as Grid } from '../components/SimpleGrid';
 import {
   Add as AddIcon,
   Edit as EditIcon,

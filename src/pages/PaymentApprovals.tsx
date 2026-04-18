@@ -50,9 +50,10 @@ const PaymentApprovals = () => {
       });
       setSelectedReceipt(null);
       setReviewNotes('');
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error approving receipt:', error);
-      alert('Failed to approve receipt: ' + (error.message || 'Unknown error'));
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      alert('Failed to approve receipt: ' + errorMessage);
     }
   };
 
@@ -75,9 +76,10 @@ const PaymentApprovals = () => {
       setSelectedReceipt(null);
       setRejectionReason('');
       setReviewNotes('');
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error rejecting receipt:', error);
-      alert('Failed to reject receipt: ' + (error.message || 'Unknown error'));
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      alert('Failed to reject receipt: ' + errorMessage);
     }
   };
 
@@ -326,7 +328,10 @@ const PaymentApprovals = () => {
                         onError={(e) => {
                           console.error('Failed to load image:', e);
                           e.currentTarget.style.display = 'none';
-                          e.currentTarget.nextElementSibling.style.display = 'block';
+                          const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
+                          if (nextElement) {
+                            nextElement.style.display = 'block';
+                          }
                         }}
                       />
                       <div style={{ display: 'none' }} className="text-center py-8">

@@ -9,7 +9,6 @@ import {
   TextField,
   Button,
   Divider,
-  Grid,
   Alert,
   Chip,
   IconButton,
@@ -30,6 +29,7 @@ import {
   MenuItem,
   Slider,
 } from '@mui/material';
+import { SimpleGrid as Grid } from '../components/SimpleGrid';
 import {
   Settings as SettingsIcon,
   Security,
@@ -161,25 +161,25 @@ export default function Settings() {
         case 'General':
           await updateGeneralSettings({
             settings: generalSettings,
-            updatedBy: user._id,
+            updatedBy: user._id as any,
           });
           break;
         case 'Security':
           await updateSecuritySettings({
             settings: securitySettings,
-            updatedBy: user._id,
+            updatedBy: user._id as any,
           });
           break;
         case 'Notification':
           await updateNotificationSettings({
             settings: notificationSettings,
-            updatedBy: user._id,
+            updatedBy: user._id as any,
           });
           break;
         case 'System':
           await updateSystemSettings({
             settings: systemSettings,
-            updatedBy: user._id,
+            updatedBy: user._id as any,
           });
           break;
       }

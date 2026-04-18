@@ -29,7 +29,7 @@ export default function Dashboard() {
   const paymentStats = useQuery(api.payments.getPaymentStatistics);
   const pendingReceipts = useQuery(api.payments.getPendingPaymentReceipts);
   const popularContent = useQuery(api.analytics.getPopularContent, { limit: 5 });
-  const enrollmentStats = useQuery(api.analytics.getEnrollmentStats);
+  const enrollmentStats = useQuery(api.analytics.getEnrollmentStats, {});
   const upcomingSessions = useQuery(api.liveSessions.getUpcomingSessions, { limit: 3 });
 
   // Loading state

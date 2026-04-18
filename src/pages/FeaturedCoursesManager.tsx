@@ -17,7 +17,6 @@ import {
   Typography,
   Chip,
   IconButton,
-  Grid,
   Switch,
   FormControlLabel,
   Autocomplete,
@@ -28,6 +27,7 @@ import {
   Avatar,
   Divider,
 } from '@mui/material';
+import { SimpleGrid as Grid } from '../components/SimpleGrid';
 import {
   Add as AddIcon,
   Edit as EditIcon,
@@ -128,9 +128,10 @@ export default function FeaturedCoursesManager() {
       }
 
       handleClose();
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error saving featured course:', error);
-      alert('Failed to save featured course: ' + (error?.message || 'Unknown error'));
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      alert('Failed to save featured course: ' + errorMessage);
     } finally {
       setIsSubmitting(false);
     }

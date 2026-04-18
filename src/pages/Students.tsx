@@ -25,7 +25,6 @@ import {
   MenuItem,
   Avatar,
   Tooltip,
-  Grid,
   Alert,
   TablePagination,
   InputAdornment,
@@ -33,6 +32,7 @@ import {
   ListItemIcon,
   ListItemText,
 } from '@mui/material';
+import { SimpleGrid as Grid } from '../components/SimpleGrid';
 import {
   Edit as EditIcon,
   Delete as DeleteIcon,
