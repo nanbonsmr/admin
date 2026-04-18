@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../convexClient";
-import type { Id } from "../../convex/_generated/dataModel";
+import type { Id } from "../../../convex/_generated/dataModel";
 import { 
   ChevronLeft, Save, Plus, Trash2, ChevronRight, 
   GripVertical, FileText, Image as ImageIcon, Youtube, 
