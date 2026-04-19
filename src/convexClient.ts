@@ -1,14 +1,24 @@
 import { ConvexReactClient } from "convex/react";
-import { makeFunctionReference } from "convex/server";
 
 // Use the production Convex deployment URL
-const convexUrl = import.meta.env.VITE_CONVEX_URL || "https://brainy-crow-276.convex.cloud";
+const convexUrl = "https://brainy-crow-276.convex.cloud";
 
 export const convex = new ConvexReactClient(convexUrl);
 
-// Create proper function references for all the functions used in the admin panel
+// Create a simple function reference that works with Convex hooks
 const createFunctionRef = (module: string, functionName: string, type: "query" | "mutation") => {
-  return makeFunctionReference(type, module, functionName);
+  // Create a function reference object that Convex hooks can use
+  const ref = {
+    _type: type,
+    _module: module,
+    _function: functionName,
+    toString: () => `${module}:${functionName}`,
+  };
+  
+  // Add the Symbol that Convex uses internally
+  (ref as any)[Symbol.for('functionName')] = `${module}:${functionName}`;
+  
+  return ref as any;
 };
 
 // Create API object with proper function references
@@ -42,6 +52,9 @@ export const api = {
     update: createFunctionRef("quizzes", "update", "mutation"),
     delete: createFunctionRef("quizzes", "delete", "mutation"),
     getAll: createFunctionRef("quizzes", "getAll", "query"),
+    createQuiz: createFunctionRef("quizzes", "createQuiz", "mutation"),
+    updateQuiz: createFunctionRef("quizzes", "updateQuiz", "mutation"),
+    getQuiz: createFunctionRef("quizzes", "getQuiz", "query"),
   },
   users: {
     getAll: createFunctionRef("users", "getAll", "query"),
@@ -49,20 +62,28 @@ export const api = {
     update: createFunctionRef("users", "update", "mutation"),
     delete: createFunctionRef("users", "delete", "mutation"),
     createAdmin: createFunctionRef("users", "createAdmin", "mutation"),
+    getAllUsers: createFunctionRef("users", "getAllUsers", "query"),
+    updateAccountStatus: createFunctionRef("users", "updateAccountStatus", "mutation"),
+    updateUserRole: createFunctionRef("users", "updateUserRole", "mutation"),
+    ensureAdminUser: createFunctionRef("users", "ensureAdminUser", "mutation"),
   },
   payments: {
     getAll: createFunctionRef("payments", "getAll", "query"),
     approve: createFunctionRef("payments", "approve", "mutation"),
     reject: createFunctionRef("payments", "reject", "mutation"),
+    getPendingPaymentReceipts: createFunctionRef("payments", "getPendingPaymentReceipts", "query"),
   },
   enrollments: {
     getAll: createFunctionRef("enrollments", "getAll", "query"),
+    getUserEnrollments: createFunctionRef("enrollments", "getUserEnrollments", "query"),
   },
   notes: {
     getAll: createFunctionRef("notes", "getAll", "query"),
+    getUserNotes: createFunctionRef("notes", "getUserNotes", "query"),
   },
   offlineDownloads: {
     getAll: createFunctionRef("offlineDownloads", "getAll", "query"),
+    getUserDownloads: createFunctionRef("offlineDownloads", "getUserDownloads", "query"),
   },
   settings: {
     get: createFunctionRef("settings", "get", "query"),
@@ -71,6 +92,10 @@ export const api = {
     updateSystemSettings: createFunctionRef("settings", "updateSystemSettings", "mutation"),
     getNotificationSettings: createFunctionRef("settings", "getNotificationSettings", "query"),
     updateNotificationSettings: createFunctionRef("settings", "updateNotificationSettings", "mutation"),
+    getAllSettings: createFunctionRef("settings", "getAllSettings", "query"),
+    getSystemInfo: createFunctionRef("settings", "getSystemInfo", "query"),
+    updateGeneralSettings: createFunctionRef("settings", "updateGeneralSettings", "mutation"),
+    updateSecuritySettings: createFunctionRef("settings", "updateSecuritySettings", "mutation"),
   },
   featuredCourses: {
     getAll: createFunctionRef("featuredCourses", "getAll", "query"),
