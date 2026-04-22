@@ -38,7 +38,12 @@ export default function CourseEditor({ isNew = false }) {
     description: "",
     category: "Technology",
     instructor: "",
-    isPublished: false
+    isPublished: false,
+    price: 0,
+    currency: "USD",
+    isFree: true,
+    discountPrice: 0,
+    discountValidUntil: ""
   });
 
   const [activeTab, setActiveTab] = useState("content"); // 'settings' | 'content' | 'quizzes'
@@ -51,17 +56,31 @@ export default function CourseEditor({ isNew = false }) {
         description: courseData.description,
         category: courseData.category,
         instructor: courseData.instructor || "",
-        isPublished: courseData.isPublished
+        isPublished: courseData.isPublished,
+        price: courseData.price || 0,
+        currency: courseData.currency || "USD",
+        isFree: courseData.isFree || false,
+        discountPrice: courseData.discountPrice || 0,
+        discountValidUntil: courseData.discountValidUntil 
+          ? new Date(courseData.discountValidUntil).toISOString().split('T')[0] 
+          : ""
       });
     }
   }, [courseData]);
 
   const handleSaveCourse = async () => {
+    const formData = {
+      ...courseForm,
+      discountValidUntil: courseForm.discountValidUntil 
+        ? new Date(courseForm.discountValidUntil).getTime() 
+        : undefined
+    };
+    
     if (isNew) {
-      const newId = await createCourse(courseForm);
+      const newId = await createCourse(formData);
       navigate(`/courses/${newId}`);
     } else {
-      await updateCourse({ id: courseId, ...courseForm });
+      await updateCourse({ id: courseId, ...formData });
     }
   };
 
@@ -194,6 +213,99 @@ export default function CourseEditor({ isNew = false }) {
               placeholder="e.g. Dr. Sarah Jenkins"
               className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
             />
+          </div>
+
+          {/* Pricing Section */}
+          <div className="border-t pt-6">
+            <h3 className="text-lg font-bold text-gray-800 mb-4">Course Pricing</h3>
+            
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  id="isFree"
+                  checked={courseForm.isFree}
+                  onChange={e => setCourseForm(p => ({ 
+                    ...p, 
+                    isFree: e.target.checked,
+                    price: e.target.checked ? 0 : p.price
+                  }))}
+                  className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                />
+                <label htmlFor="isFree" className="text-sm font-medium text-gray-700">
+                  This is a free course
+                </label>
+              </div>
+
+              {!courseForm.isFree && (
+                <>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold text-gray-700">Price</label>
+                      <div className="relative">
+                        <input 
+                          type="number" 
+                          min="0"
+                          step="0.01"
+                          value={courseForm.price}
+                          onChange={e => setCourseForm(p => ({ ...p, price: parseFloat(e.target.value) || 0 }))}
+                          placeholder="0.00"
+                          className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold text-gray-700">Currency</label>
+                      <select 
+                        value={courseForm.currency}
+                        onChange={e => setCourseForm(p => ({ ...p, currency: e.target.value }))}
+                        className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all appearance-none"
+                      >
+                        <option value="USD">USD ($)</option>
+                        <option value="EUR">EUR (€)</option>
+                        <option value="GBP">GBP (£)</option>
+                        <option value="JPY">JPY (¥)</option>
+                        <option value="CAD">CAD (C$)</option>
+                        <option value="AUD">AUD (A$)</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold text-gray-700">Discount Price (Optional)</label>
+                      <input 
+                        type="number" 
+                        min="0"
+                        step="0.01"
+                        value={courseForm.discountPrice}
+                        onChange={e => setCourseForm(p => ({ ...p, discountPrice: parseFloat(e.target.value) || 0 }))}
+                        placeholder="0.00"
+                        className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold text-gray-700">Discount Valid Until</label>
+                      <input 
+                        type="date" 
+                        value={courseForm.discountValidUntil}
+                        onChange={e => setCourseForm(p => ({ ...p, discountValidUntil: e.target.value }))}
+                        className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                      />
+                    </div>
+                  </div>
+
+                  {courseForm.discountPrice > 0 && courseForm.discountValidUntil && (
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                      <p className="text-sm text-blue-700">
+                        <strong>Discount Preview:</strong> Students will pay {courseForm.currency} {courseForm.discountPrice} 
+                        instead of {courseForm.currency} {courseForm.price} until {new Date(courseForm.discountValidUntil).toLocaleDateString()}
+                      </p>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
           </div>
         </div>
       ) : activeTab === "quizzes" ? (

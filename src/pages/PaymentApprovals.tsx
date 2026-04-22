@@ -11,22 +11,35 @@ import {
   DollarSign,
   FileImage,
   Calendar,
-  Filter
+  Filter,
+  BookOpen,
+  GraduationCap
 } from 'lucide-react';
 
 const PaymentApprovals = () => {
+  const [activeTab, setActiveTab] = useState<'general' | 'courses'>('courses');
   const [selectedStatus, setSelectedStatus] = useState<'all' | 'pending' | 'approved' | 'rejected'>('pending');
   const [selectedReceipt, setSelectedReceipt] = useState<any>(null);
   const [rejectionReason, setRejectionReason] = useState('');
   const [reviewNotes, setReviewNotes] = useState('');
   const [imageUrl, setImageUrl] = useState<string | null>(null);
 
+  // General payment queries
   const pendingReceipts = useQuery(api.payments.getPendingPaymentReceipts);
   const allReceipts = useQuery(api.payments.getAllPaymentReceipts, {
     status: selectedStatus === 'all' ? undefined : selectedStatus as any,
     limit: 100,
   });
   const paymentStats = useQuery(api.payments.getPaymentStatistics);
+
+  // Course payment queries
+  const pendingCoursePayments = useQuery(api.coursePayments.getPendingCoursePayments);
+  const allCoursePayments = useQuery(api.coursePayments.getAllCoursePayments, {
+    status: selectedStatus === 'all' ? undefined : selectedStatus as any,
+    limit: 100,
+  });
+  const coursePaymentStats = useQuery(api.coursePayments.getCoursePaymentStatistics);
+
   const adminUser = useQuery(api.users.getAdminUser);
   
   // Get image URL when a receipt is selected - temporarily disabled
@@ -36,25 +49,39 @@ const PaymentApprovals = () => {
   // );
   const receiptImageUrl = null; // Temporarily disabled until Convex functions are properly connected
 
+  // General payment mutations
   const approveReceipt = useMutation(api.payments.approvePaymentReceipt);
   const rejectReceipt = useMutation(api.payments.rejectPaymentReceipt);
+
+  // Course payment mutations
+  const approveCoursePayment = useMutation(api.coursePayments.approveCoursePayment);
+  const rejectCoursePayment = useMutation(api.coursePayments.rejectCoursePayment);
 
   const handleApprove = async (receiptId: string) => {
     try {
       // Use a fallback admin ID if adminUser is not available
       const adminId = adminUser?._id || 'kh7b9x6qx8n5m2p4r1s7t9v3w8y2z5a1'; // fallback admin ID
       
-      await approveReceipt({
-        receiptId: receiptId as any,
-        reviewerId: adminId as any,
-        notes: reviewNotes,
-      });
+      if (activeTab === 'courses') {
+        await approveCoursePayment({
+          paymentId: receiptId as any,
+          reviewerId: adminId as any,
+          notes: reviewNotes,
+        });
+      } else {
+        await approveReceipt({
+          receiptId: receiptId as any,
+          reviewerId: adminId as any,
+          notes: reviewNotes,
+        });
+      }
+      
       setSelectedReceipt(null);
       setReviewNotes('');
     } catch (error: unknown) {
-      console.error('Error approving receipt:', error);
+      console.error('Error approving payment:', error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      alert('Failed to approve receipt: ' + errorMessage);
+      alert('Failed to approve payment: ' + errorMessage);
     }
   };
 
@@ -68,19 +95,29 @@ const PaymentApprovals = () => {
       // Use a fallback admin ID if adminUser is not available
       const adminId = adminUser?._id || 'kh7b9x6qx8n5m2p4r1s7t9v3w8y2z5a1'; // fallback admin ID
       
-      await rejectReceipt({
-        receiptId: receiptId as any,
-        reviewerId: adminId as any,
-        rejectionReason,
-        notes: reviewNotes,
-      });
+      if (activeTab === 'courses') {
+        await rejectCoursePayment({
+          paymentId: receiptId as any,
+          reviewerId: adminId as any,
+          rejectionReason,
+          notes: reviewNotes,
+        });
+      } else {
+        await rejectReceipt({
+          receiptId: receiptId as any,
+          reviewerId: adminId as any,
+          rejectionReason,
+          notes: reviewNotes,
+        });
+      }
+      
       setSelectedReceipt(null);
       setRejectionReason('');
       setReviewNotes('');
     } catch (error: unknown) {
-      console.error('Error rejecting receipt:', error);
+      console.error('Error rejecting payment:', error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      alert('Failed to reject receipt: ' + errorMessage);
+      alert('Failed to reject payment: ' + errorMessage);
     }
   };
 
@@ -93,7 +130,11 @@ const PaymentApprovals = () => {
     }
   };
 
-  const receiptsToShow = selectedStatus === 'pending' ? pendingReceipts : allReceipts;
+  const receiptsToShow = activeTab === 'courses' 
+    ? (selectedStatus === 'pending' ? pendingCoursePayments : allCoursePayments)
+    : (selectedStatus === 'pending' ? pendingReceipts : allReceipts);
+
+  const statsToShow = activeTab === 'courses' ? coursePaymentStats : paymentStats;
 
   return (
     <div className="space-y-6">
@@ -107,21 +148,55 @@ const PaymentApprovals = () => {
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
           >
             <option value="pending">Pending Only</option>
-            <option value="all">All Receipts</option>
+            <option value="all">All Payments</option>
             <option value="approved">Approved</option>
             <option value="rejected">Rejected</option>
           </select>
         </div>
       </div>
 
+      {/* Tab System */}
+      <div className="border-b border-gray-200">
+        <nav className="-mb-px flex space-x-8">
+          <button
+            onClick={() => setActiveTab('courses')}
+            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              activeTab === 'courses'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
+          >
+            <div className="flex items-center space-x-2">
+              <BookOpen className="h-4 w-4" />
+              <span>Course Payments</span>
+            </div>
+          </button>
+          <button
+            onClick={() => setActiveTab('general')}
+            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              activeTab === 'general'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
+          >
+            <div className="flex items-center space-x-2">
+              <GraduationCap className="h-4 w-4" />
+              <span>General Payments</span>
+            </div>
+          </button>
+        </nav>
+      </div>
+
       {/* Statistics Cards */}
-      {paymentStats && (
+      {statsToShow && (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <div className="bg-white p-6 rounded-lg shadow-sm border">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Pending Approval</p>
-                <p className="text-2xl font-bold text-yellow-600">{paymentStats.receipts.pending}</p>
+                <p className="text-2xl font-bold text-yellow-600">
+                  {activeTab === 'courses' ? statsToShow.payments?.pending : statsToShow.receipts?.pending}
+                </p>
               </div>
               <Clock className="h-8 w-8 text-yellow-600" />
             </div>
@@ -130,8 +205,12 @@ const PaymentApprovals = () => {
           <div className="bg-white p-6 rounded-lg shadow-sm border">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Approved Users</p>
-                <p className="text-2xl font-bold text-green-600">{paymentStats.users.approved}</p>
+                <p className="text-sm font-medium text-gray-600">
+                  {activeTab === 'courses' ? 'Approved Payments' : 'Approved Users'}
+                </p>
+                <p className="text-2xl font-bold text-green-600">
+                  {activeTab === 'courses' ? statsToShow.payments?.approved : statsToShow.users?.approved}
+                </p>
               </div>
               <Check className="h-8 w-8 text-green-600" />
             </div>
@@ -140,18 +219,33 @@ const PaymentApprovals = () => {
           <div className="bg-white p-6 rounded-lg shadow-sm border">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Total Receipts</p>
-                <p className="text-2xl font-bold text-blue-600">{paymentStats.receipts.total}</p>
+                <p className="text-sm font-medium text-gray-600">
+                  {activeTab === 'courses' ? 'Total Revenue' : 'Total Receipts'}
+                </p>
+                <p className="text-2xl font-bold text-blue-600">
+                  {activeTab === 'courses' 
+                    ? `${statsToShow.revenue?.currency || 'USD'} ${statsToShow.revenue?.total || 0}`
+                    : statsToShow.receipts?.total
+                  }
+                </p>
               </div>
-              <CreditCard className="h-8 w-8 text-blue-600" />
+              {activeTab === 'courses' ? (
+                <DollarSign className="h-8 w-8 text-blue-600" />
+              ) : (
+                <CreditCard className="h-8 w-8 text-blue-600" />
+              )}
             </div>
           </div>
 
           <div className="bg-white p-6 rounded-lg shadow-sm border">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Total Users</p>
-                <p className="text-2xl font-bold text-purple-600">{paymentStats.users.total}</p>
+                <p className="text-sm font-medium text-gray-600">
+                  {activeTab === 'courses' ? 'Total Payments' : 'Total Users'}
+                </p>
+                <p className="text-2xl font-bold text-purple-600">
+                  {activeTab === 'courses' ? statsToShow.payments?.total : statsToShow.users?.total}
+                </p>
               </div>
               <Users className="h-8 w-8 text-purple-600" />
             </div>
@@ -175,6 +269,11 @@ const PaymentApprovals = () => {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     User
                   </th>
+                  {activeTab === 'courses' && (
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Course
+                    </th>
+                  )}
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Submitted
                   </th>
@@ -198,11 +297,22 @@ const PaymentApprovals = () => {
                         <div className="text-sm text-gray-500">{receipt.userEmail}</div>
                       </div>
                     </td>
+                    {activeTab === 'courses' && (
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div>
+                          <div className="text-sm font-medium text-gray-900">{receipt.courseTitle}</div>
+                          <div className="text-sm text-gray-500">{receipt.courseCategory}</div>
+                        </div>
+                      </td>
+                    )}
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {new Date(receipt.submittedAt).toLocaleDateString()}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {receipt.paymentAmount ? `$${receipt.paymentAmount}` : 'Not specified'}
+                      {activeTab === 'courses' 
+                        ? `${receipt.currency} ${receipt.amount}`
+                        : (receipt.paymentAmount ? `$${receipt.paymentAmount}` : 'Not specified')
+                      }
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(receipt.status)}`}>
